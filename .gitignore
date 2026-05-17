@@ -1,10 +1,15 @@
 # The ONNX models live only in the GitHub Release, never as tracked blobs.
 # Even with Git LFS the bandwidth caps would kill us on mobile.
 model.onnx
+model.preprocessed.onnx
 model-int8.onnx
 *.mlpackage
 *.mlmodelc
 *.tflite
+
+# Calibration set is reproducible from scripts/fetch_calibration.sh
+# (deterministic Picsum seeds), no need to track 3 MB of JPEGs.
+calibration/
 
 # Misc
 .DS_Store
