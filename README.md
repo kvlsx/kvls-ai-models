@@ -12,12 +12,12 @@ The current release ships **WD-ViT-Tagger-v3** by
 
 | File | Size | Purpose |
 |---|---|---|
-| `model-int8.onnx` (release asset) | **96 MB** | **Static per-channel INT8** quantization (QInt8 weights + QUInt8 activations) calibrated on 100 natural images. ~4× smaller than FP32, faster inference (no on-the-fly quant of activations). **Default download for mobile clients.** |
-| `model.onnx` (release asset) | 361 MB | Original FP32 weights — kept for verification / future re-quantization |
+| `model-int8.onnx` (release asset) | **93 MB** | **Per-channel dynamic INT8** quantization (`quantize_dynamic`, QInt8 weights). Verified against the FP32 reference: top-100 output correlation **0.81–0.96** across natural photos. **Default download for mobile clients.** |
+| `model.onnx` (release asset) | 361 MB | Original FP32 weights — used during quantization and kept for re-runs |
 | `selected_tags.csv` (in tree) | 301 KB | Tag-id → name / category / count vocabulary |
-| `scripts/quantize_static.py` | tiny | Reproducible recipe for the static-quant INT8 variant |
-| `scripts/quantize.py` | tiny | Older dynamic-quant recipe — kept for comparison |
-| `scripts/fetch_calibration.sh` | tiny | Re-downloads the 100-image calibration set from Picsum (CC0) |
+| `scripts/quantize.py` | tiny | Production recipe used to build the shipped INT8 |
+| `scripts/quantize_static.py` | tiny | Experimental static-quant — does NOT work on this ViT, see file header |
+| `scripts/fetch_calibration.sh` | tiny | Re-downloads the 100-image calibration set from Picsum (CC0); unused by the production recipe but kept for static-quant experiments |
 
 Tag categories present in the vocabulary:
 

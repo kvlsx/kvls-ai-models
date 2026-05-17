@@ -1,10 +1,19 @@
 """
 Static INT8 quantization of WD-ViT-Tagger-v3 with a small calibration set.
 
-Per-channel weights stay symmetric (QInt8) and activations are calibrated
-to UInt8 from real image statistics — typical 2–3 % accuracy bump over
-dynamic quantization on transformer heads, and inference is faster
-because activations no longer need on-the-fly quantization.
+⚠ EXPERIMENTAL — DOES NOT WORK for this model. Kept for reproducibility.
+
+Two failure modes observed on this ViT (run against the FP32 reference):
+  - QOperator + MinMax calibration: model collapses; every image yields the
+    same argmax cluster regardless of content (Pearson corr ≈ 0.1).
+  - QDQ + Entropy calibration: 16 GB RAM is exhausted during the calibration
+    pass over 100 images and the kernel kills the process (SIGKILL 137).
+
+In production we ship the *dynamic* quantization variant (`quantize.py`)
+which retains correlation 0.81–0.96 with FP32 and the same 97 MB footprint.
+The script below is left here so the failure is reproducible and any future
+fix (e.g. per-tensor activations, op-level skip-list for attention/softmax,
+or a smaller calibration set) can be evaluated against it.
 
 Run inside the local venv (onnxruntime + onnx + sympy + Pillow + numpy):
 
@@ -96,15 +105,24 @@ def main():
 
     # 2) Static quantization. Per-channel symmetric weights (QInt8) +
     #    asymmetric activations (QUInt8) is the standard recipe for ViTs.
+    # QDQ format (QuantizeLinear/DequantizeLinear ops around target nodes)
+    # rather than QOperator (whole-op quantized kernels). QDQ is the modern
+    # recommended path for transformers — keeps softmax/layer-norm and other
+    # numerically sensitive ops in fp32 and only quantizes Conv/MatMul where
+    # it's safe. QOperator broke this ViT entirely (all photos collapsed to
+    # the same argmax cluster — verified against the FP32 reference).
+    #
+    # Entropy calibration tracks the activation distribution's tail better
+    # than naive MinMax for transformer activations.
     quantize_static(
         model_input=str(SRC_PREP),
         model_output=str(DST),
         calibration_data_reader=reader,
-        quant_format=QuantFormat.QOperator,
+        quant_format=QuantFormat.QDQ,
         per_channel=True,
         weight_type=QuantType.QInt8,
         activation_type=QuantType.QUInt8,
-        calibrate_method=CalibrationMethod.MinMax,
+        calibrate_method=CalibrationMethod.Entropy,
     )
     SRC_PREP.unlink(missing_ok=True)
 
