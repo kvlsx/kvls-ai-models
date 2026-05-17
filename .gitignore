@@ -1,0 +1,12 @@
+# The 361 MB ONNX model lives only in the GitHub Release, never as a tracked
+# blob. Even with Git LFS the bandwidth caps would kill us on mobile.
+model.onnx
+*.mlpackage
+*.mlmodelc
+*.tflite
+
+# Misc
+.DS_Store
+__pycache__/
+*.pyc
+.venv/
