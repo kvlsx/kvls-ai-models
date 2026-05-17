@@ -12,8 +12,10 @@ The current release ships **WD-ViT-Tagger-v3** by
 
 | File | Size | Purpose |
 |---|---|---|
-| `model.onnx` (release asset) | 361 MB | Vision Transformer that maps an image to ~10 800 booru-style tags |
+| `model-int8.onnx` (release asset) | **93 MB** | Per-channel INT8 quantization of `model.onnx` — same Vision Transformer, ~4× smaller, near-identical accuracy on RP-relevant tags. **Default download for mobile clients.** |
+| `model.onnx` (release asset) | 361 MB | Original FP32 weights — kept for verification / future re-quantization |
 | `selected_tags.csv` (in tree) | 301 KB | Tag-id → name / category / count vocabulary |
+| `scripts/quantize.py` (in tree) | tiny | Reproducible recipe used to produce the INT8 variant |
 
 Tag categories present in the vocabulary:
 

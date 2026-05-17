@@ -1,6 +1,7 @@
-# The 361 MB ONNX model lives only in the GitHub Release, never as a tracked
-# blob. Even with Git LFS the bandwidth caps would kill us on mobile.
+# The ONNX models live only in the GitHub Release, never as tracked blobs.
+# Even with Git LFS the bandwidth caps would kill us on mobile.
 model.onnx
+model-int8.onnx
 *.mlpackage
 *.mlmodelc
 *.tflite
